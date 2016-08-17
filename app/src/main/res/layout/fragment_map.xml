@@ -10,19 +10,10 @@
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+
         android:id="@+id/ibtn_mylocation"
         android:src="@android:drawable/ic_menu_mylocation"
         android:background="@drawable/button_background_circle"
-        android:layout_margin="20dp" />
+        android:layout_margin="@dimen/fab_margin" />
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/ibtn_add"
-        android:src="@android:drawable/ic_menu_add"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/button_background_circle"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="60dp" />
 </RelativeLayout>

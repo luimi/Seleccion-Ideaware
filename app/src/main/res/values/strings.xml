@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">My Places</string>
-    <string name="action_settings">SPOT ME!</string>
+
+    <!-- Messages-->
+    <string name="dialog_btn_delete">DELETE</string>
+    <string name="dialog_btn_cancel">CANCEL</string>
+    <string name="dialog_btn_ok">OK</string>
+    <string name="dialog_btn_positive">YES</string>
+    <string name="dialog_btn_negative">NO</string>
+    <string name="dialog_btn_done">DONE</string>
+    <string name="dialog_delete_1">Do you want to delete this place?</string>
+    <string name="dialog_newplace">Save this place</string>
+    <string name="dialog_editplace">Edit this place</string>
+    <string name="dialog_delete_all">Do you want to delete all places?</string>
+    <string name="dialog_error_newplace">Data missing, you have to write a title and a description</string>
+    <string name="dialog_error_spotme">There is no places stored</string>
+
+    <string name="dialog_ne_title_title">Title</string>
+    <string name="dialog_ne_title_hint">My Home</string>
+    <string name="dialog_ne_description_title">Description</string>
+    <string name="dialog_ne_description_hint">The place where I live </string>
+
+    <string name="tab_map">SAVE PLACE</string>
+    <string name="tab_places">SHOW MY PLACES</string>
+    <string name="btn_spotme">SPOT ME!</string>
 </resources>

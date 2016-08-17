@@ -9,7 +9,7 @@
         android:layout_height="@dimen/adapter_image"
         android:id="@+id/iv_photo"
         android:layout_gravity="center_vertical"
-        android:background="#000" />
+        android:src="@android:drawable/ic_menu_report_image" />
 
     <LinearLayout
         android:orientation="vertical"

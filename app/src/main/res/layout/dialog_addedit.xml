@@ -7,24 +7,24 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Title"
+        android:text="@string/dialog_ne_title_title"
         android:id="@+id/tv_title" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/edt_title"
-        android:hint="My Home" />
+        android:hint="@string/dialog_ne_title_hint" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Description"
+        android:text="@string/dialog_ne_description_title"
         android:id="@+id/tv_description" />
 
     <EditText
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/edt_description"
-        android:hint="The place where I live " />
+        android:hint="@string/dialog_ne_description_hint" />
 </LinearLayout>

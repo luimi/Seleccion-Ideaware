@@ -1,28 +1,25 @@
 package com.lui2mi.testideaware;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
+import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-
 import android.widget.ImageButton;
 import android.widget.ListView;
 
@@ -32,6 +29,11 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import utils.Events;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,18 +46,16 @@ public class MainActivity extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter adapter;
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    private ViewPager pager;
+
+    public ViewPager pager;
 
     private TabLayout tabs;
-
+    public static FloatingActionButton floatingButton;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        App.data.initAdapter(this);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         tabs = (TabLayout) findViewById(R.id.tabs);
@@ -63,6 +63,7 @@ public class MainActivity extends AppCompatActivity {
         pager = (ViewPager) findViewById(R.id.container);
         pager.setAdapter(adapter);
         tabs.setupWithViewPager(pager);
+        floatingButton =(FloatingActionButton) findViewById(R.id.fab);
 
     }
 
@@ -76,7 +77,32 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_spotme) {//Acction spotme search the nearest point and display on the map
+            if(App.data.places.length()>0){
+                Location now=new Events().getMyLocation(this);
+                int best=0;
+                JSONObject o=App.data.places.optJSONObject(0);
+                Location temp=new Location("");
+                temp.setLatitude(o.optDouble("lat"));
+                temp.setLongitude(o.optDouble("lng"));
+                float bestDistance= now.distanceTo(temp);
+                for (int i=1;i<App.data.places.length();i++){
+                    o=App.data.places.optJSONObject(i);
+                    temp=new Location("");
+                    temp.setLatitude(o.optDouble("lat"));
+                    temp.setLongitude(o.optDouble("lng"));
+                    if(now.distanceTo(temp)<bestDistance){
+                        best=i;
+                        bestDistance=now.distanceTo(temp);
+                    }
+                }
+                App.data.addMarker(best);
+                pager.setCurrentItem(0);
+            }else{
+                new Events().dialog(this,getString(R.string.dialog_error_spotme),null,
+                        getString(R.string.dialog_btn_ok),null,null,null);
+            }
+
             return true;
         }
 
@@ -112,12 +138,14 @@ public class MainActivity extends AppCompatActivity {
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "SAVE PLACE";
+                    return getString(R.string.tab_map);
                 case 1:
-                    return "SHOW MY PLACES";
+                    return getString(R.string.tab_places);
             }
             return "NO REGISTERED TAB";
         }
+
+
     }
 
     /**
@@ -146,6 +174,31 @@ public class MainActivity extends AppCompatActivity {
             return main;
         }
 
+        @Override
+        public void setUserVisibleHint(boolean isVisibleToUser) {
+            if(isVisibleToUser){
+                floatingButton.setImageResource(android.R.drawable.ic_menu_delete);
+                floatingButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        new Events().dialog(getContext(), getString(R.string.dialog_delete_all), null,
+                                getString(R.string.dialog_btn_positive),
+                                getString(R.string.dialog_btn_negative), deleteAll(), null);
+                    }
+
+                    private DialogInterface.OnClickListener deleteAll() {
+                        return new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                App.data.places = new JSONArray();
+                                App.data.saveNow();
+                            }
+                        };
+                    }
+                });
+            }
+            super.setUserVisibleHint(isVisibleToUser);
+        }
     }
     /**
      * Fragment map
@@ -153,12 +206,10 @@ public class MainActivity extends AppCompatActivity {
     public static class FragmentMap extends Fragment{
         View mainView;
         MapView mapView;
-        private GoogleMap map;
-        private ImageButton gps,add;
+        private ImageButton gps;
         public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
             mainView=inflater.inflate(R.layout.fragment_map,container,false);
             gps=((ImageButton)mainView.findViewById(R.id.ibtn_mylocation));
-            add=((ImageButton)mainView.findViewById(R.id.ibtn_add));
             mapView= (MapView) mainView.findViewById(R.id.map);
             mapView.onCreate(savedInstanceState);
             mapView.onResume();
@@ -168,16 +219,18 @@ public class MainActivity extends AppCompatActivity {
             mapView.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
-                    map=googleMap;
+                    App.data.map = googleMap;
                     //Check if user allow app to use GPS
                     if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-                        map.setMyLocationEnabled(true);
-                        map.getUiSettings().setMyLocationButtonEnabled(false);
-                        ShowMyLocation();
+                        App.data.map.setMyLocationEnabled(true);
+                        App.data.map.getUiSettings().setMyLocationButtonEnabled(false);
+                        showMyLocation();
+                        gps.setEnabled(true);
+                        floatingButton.setEnabled(true);
                     } else {
                         gps.setEnabled(false);
-                        add.setEnabled(false);
+                        floatingButton.setEnabled(false);
                     }
 
 
@@ -187,29 +240,31 @@ public class MainActivity extends AppCompatActivity {
                                        @Override
                                        public void onClick(View v) {
                                            //Move screen to my current location
-                                           ShowMyLocation();
+                                           showMyLocation();
                                        }
                                    }
             );
-            add.setOnClickListener(new View.OnClickListener() {
-                                       @Override
-                                       public void onClick(View v) {
-                                           //Event add new place
-                                           App.data.DialogAdd(getContext(), GetMyLocation());
-                                       }
-                                   }
-            );
+
             return mainView;
         }
-        private void ShowMyLocation(){
-            Location l=GetMyLocation();
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude())
-                    , 14f));
+        private void showMyLocation(){
+            Location l= new Events().getMyLocation(getContext());
+            App.data.map.moveCamera(CameraUpdateFactory
+                    .newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude())
+                            , 14f));
         }
-        private Location GetMyLocation(){
-            LocationManager lm =
-                    (LocationManager)getActivity().getSystemService(getActivity().LOCATION_SERVICE);
-            return lm.getLastKnownLocation(lm.getBestProvider(new Criteria(),false));
+        @Override
+        public void setUserVisibleHint(boolean isVisibleToUser) {
+            if(isVisibleToUser){
+                floatingButton.setImageResource(android.R.drawable.ic_menu_add);
+                floatingButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        App.data.dialogAdd(getContext(), new Events().getMyLocation(getContext()));
+                    }
+                });
+            }
+            super.setUserVisibleHint(isVisibleToUser);
         }
     }
 }
