@@ -12,13 +12,18 @@
     <string name="dialog_newplace">Save this place</string>
     <string name="dialog_editplace">Edit this place</string>
     <string name="dialog_delete_all">Do you want to delete all places?</string>
+
     <string name="dialog_error_newplace">Data missing, you have to write a title and a description</string>
     <string name="dialog_error_spotme">There is no places stored</string>
+    <string name="dialog_error_googlemaps">This device need GooglePlay services</string>
+    <string name="dialog_error_location">Unable to get your current location</string>
 
     <string name="dialog_ne_title_title">Title</string>
     <string name="dialog_ne_title_hint">My Home</string>
     <string name="dialog_ne_description_title">Description</string>
     <string name="dialog_ne_description_hint">The place where I live </string>
+
+    <string name="dialog_gps_title">GPS is off, do you want to activate it?</string>
 
     <string name="tab_map">SAVE PLACE</string>
     <string name="tab_places">SHOW MY PLACES</string>

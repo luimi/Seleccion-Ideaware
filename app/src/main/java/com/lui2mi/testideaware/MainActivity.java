@@ -64,9 +64,20 @@ public class MainActivity extends AppCompatActivity {
         pager.setAdapter(adapter);
         tabs.setupWithViewPager(pager);
         floatingButton =(FloatingActionButton) findViewById(R.id.fab);
-
+        if(!new Events().isGooglePlay(this)){
+            new Events().dialog(this,getString(R.string.dialog_error_googlemaps),null,
+                    getString(R.string.dialog_btn_ok),null,exit(),null);
+        }
+        new Events().isGPS(this);
     }
-
+    private DialogInterface.OnClickListener exit(){
+        return new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                MainActivity.this.finish();
+            }
+        };
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -249,9 +260,14 @@ public class MainActivity extends AppCompatActivity {
         }
         private void showMyLocation(){
             Location l= new Events().getMyLocation(getContext());
-            App.data.map.moveCamera(CameraUpdateFactory
-                    .newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude())
-                            , 14f));
+            if(l!=null){
+                App.data.map.moveCamera(CameraUpdateFactory
+                        .newLatLngZoom(new LatLng(l.getLatitude(), l.getLongitude())
+                                , 14f));
+            }else{
+                new Events().dialog(getContext(),getString(R.string.dialog_error_location),null,
+                        getString(R.string.dialog_btn_ok),null,null,null);
+            }
         }
         @Override
         public void setUserVisibleHint(boolean isVisibleToUser) {
@@ -260,7 +276,14 @@ public class MainActivity extends AppCompatActivity {
                 floatingButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        App.data.dialogAdd(getContext(), new Events().getMyLocation(getContext()));
+                        Location loc = new Events().getMyLocation(getContext());
+                        if (loc != null) {
+                            App.data.dialogAdd(getContext(), loc);
+                        } else {
+                            new Events().dialog(getContext(), getString(R.string.dialog_error_location), null,
+                                    getString(R.string.dialog_btn_ok), null, null, null);
+                        }
+
                     }
                 });
             }

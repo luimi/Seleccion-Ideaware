@@ -2,6 +2,7 @@ package com.lui2mi.testideaware;
 
 import android.app.Application;
 
+import utils.Events;
 import utils.ObjectManager;
 
 /**
@@ -16,6 +17,9 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        data=new ObjectManager(this);
+        try{
+            data=new ObjectManager(this);
+        }catch (Exception e){}
+
     }
 }
