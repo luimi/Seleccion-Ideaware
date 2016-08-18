@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.location.Location;
+import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -125,7 +126,13 @@ public class ObjectManager {
                     return new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            places.remove(position);
+                            ArrayList<JSONObject> tempList = new ArrayList();
+                            for (int i=0;i<places.length();i++){
+                                tempList.add(places.optJSONObject(i));
+                            }
+                            tempList.remove(position);
+                            places = new JSONArray(tempList);
+
                             Adapter_places.this.notifyDataSetChanged();
                             saveNow();
                         }
@@ -147,6 +154,7 @@ public class ObjectManager {
                 }
             };
         }
+
     }
 
     /**
@@ -268,6 +276,9 @@ public class ObjectManager {
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(point, 14f));
         }catch (Exception e){}
 
+    }
+    public void updateAdapter(){
+        adapter.notifyDataSetChanged();
     }
 
 }

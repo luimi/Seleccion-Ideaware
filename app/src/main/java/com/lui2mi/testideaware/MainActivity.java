@@ -202,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 App.data.places = new JSONArray();
+                                App.data.updateAdapter();
                                 App.data.saveNow();
                             }
                         };
@@ -236,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
                             == PackageManager.PERMISSION_GRANTED) {
                         App.data.map.setMyLocationEnabled(true);
                         App.data.map.getUiSettings().setMyLocationButtonEnabled(false);
-                        showMyLocation();
+                        //showMyLocation();
                         gps.setEnabled(true);
                         floatingButton.setEnabled(true);
                     } else {
